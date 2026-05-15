@@ -108,6 +108,8 @@ flowchart TD
     Game -->|usa| Colors
     Board -->|usa| Colors
 
+![DMpackage](./DMpackage.png)
+
 8. Analisi retrospettiva
 8.1 Sprint 0
 Durante lo Sprint 0 il team si è focalizzato sulla configurazione dell'ambiente di sviluppo e sulla definizione dell'architettura di base.
