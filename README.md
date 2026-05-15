@@ -56,7 +56,7 @@ classDiagram
     QuoridorGame ..> Col : usa
     Board ..> Col : usa
 
-![Quoridor Game Management-2025-05-15-145025](./Quoridor Game Management-2025-05-15-145025.png)
+![quoeidorGame](./quoeidorGame.png)
 
 4. Requisiti specifici
 3.1 Requisiti funzionali
@@ -77,6 +77,22 @@ L'architettura segue una struttura modulare orientata agli oggetti per garantire
 
 Diagramma dei Package
 flowchart TD
+    Main[main.py]
+    
+    subgraph "src/"
+        Game[game.py]
+        Board[board.py]
+        Player[player.py]
+        Colors[colors.py]
+    end
+
+    Main -->|avvia| Game
+    Game -->|coordina| Board
+    Game -->|coordina| Player
+    Game -->|usa| Colors
+    Board -->|usa| Colors
+
+    flowchart TD
     Main[main.py]
     
     subgraph "src/"
