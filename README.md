@@ -56,6 +56,8 @@ classDiagram
     QuoridorGame ..> Col : usa
     Board ..> Col : usa
 
+![Quoridor Game Management-2025-05-15-145025](./main/Quoridor Game Management-2025-05-15-145025.png)
+
 4. Requisiti specifici
 3.1 Requisiti funzionali
 •	Inizializzazione: Il sistema permette l'inserimento dei nomi per due giocatori e l'assegnazione automatica dei colori.
