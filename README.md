@@ -7,63 +7,92 @@ Le entità fondamentali sono:
 •	QuoridorGame: L'orchestratore della partita che gestisce i turni, le regole di movimento e la verifica della vittoria.
 •	Board: La plancia di gioco che mantiene lo stato dei muri piazzati e si occupa della visualizzazione testuale.
 •	Player: Rappresenta l'utente, memorizzando il nome, la posizione corrente sulla scacchiera e il numero di muri ancora disponibili (partendo da 10).
-•	Col: Un modulo di utilità per gestire i colori ANSI nel terminale, migliorando l'usabilità dell'interfaccia.
 
 **Diagramma delle Classi**:
 
 `classDiagram`
+    `direction TB`
 
-    class QuoridorGame {
-        +Board tabella
-        +Player giocatore1
-        +Player giocatore2
-        +Player turno_corrente
-        +play()
-        +reset_game(mantieni_nomi)
-        +puoi_muovere(p_partenza, p_arrivo)
-        +muro_valido(tipo, r, c)
-        +esiste_percorso(pos, r_target)
+    class View {
+        interfaccia visiva
+        input utente
     }
-    
+
+    class QuoridorEngine {
+        turno corrente
+        stato della partita
+    }
+
+    class GameState {
+        situazione riassuntiva
+    }
+
     class Board {
-        +int size
-        +set h_muri
-        +set v_muri
-        +draw(p1, p2)
+        dimensione griglia
+        muri orizzontali posizionati
+        muri verticali posizionati
     }
-    
+
     class Player {
-        +String name
-        +String symbol
-        +String color
-        +list pos
-        +int muri
-        +int target_row
-        +place_wall() bool
-        +has_won() bool
-    }
-    
-    class Col {
-        +String RED
-        +String BLUE
-        +String CYAN
-        +String YELLOW
-        +String GREEN
-        +String MAGENTA
-        +String RESET
+        nome
+        colore
+        posizione corrente
+        muri in riserva
+        obiettivo di vittoria
     }
 
-    QuoridorGame "1" *-- "1" Board : contiene
-    QuoridorGame "1" *-- "2" Player : gestisce
-    QuoridorGame ..> Col : usa
-    Board ..> Col : usa
+    class GameTimer {
+        regola temporale
+    }
 
-![quoeidorGame](./quoeidorGame.png)
+    class PlayerTimer {
+        tempo residuo
+    }
+
+    class Transcript {
+        contatore mosse
+    }
+
+    class MoveRecord {
+        numero sequenziale
+        tipo di azione
+        coordinata algebrica
+        istante temporale
+    }
+
+    class PlayerSnapshot {
+        fotografia posizione
+        fotografia muri riserva
+    }
+
+    class GameRecord {
+        data di inizio
+        vincitore
+    }
+
+    %% Relazioni con Molteplicità e Verbi (Associazioni)
+    View "1" --> "1" QuoridorEngine : interagisce con
+    QuoridorEngine "1" --> "1" GameState : genera
+
+    %% Composizioni (rombo pieno)
+    QuoridorEngine "1" *-- "1" Board : governa
+    QuoridorEngine "1" *-- "2..4" Player : coordina
+    QuoridorEngine "1" *-- "1" GameTimer : controlla tempo tramite
+    QuoridorEngine "1" *-- "1" Transcript : annota mosse su
+    GameTimer "1" *-- "2..4" PlayerTimer : è composto da
+    Transcript "1" *-- "*" MoveRecord : accumula
+    MoveRecord "1" *-- "2..4" PlayerSnapshot : immortala
+
+    %% Associazioni logiche semplici
+    Player "1" --> "1" PlayerTimer : è limitato da
+    Transcript "1" --> "1" GameRecord : salva archivio in
+
+![quoeidorGame](./quoridorGame.png)
 
 ## 3. Requisiti specifici
 
 ## 3.1 Requisiti funzionali:
-   
+
 **- US 01 — Visualizzare lo stato della scacchiera**
 
 Come giocatore voglio che il terminale stampi a schermo la scacchiera 9x9 aggiornata con tutti i pezzi, in modo da avere la situazione chiara prima di digitare la mia prossima mossa.
@@ -153,21 +182,82 @@ Criteri di accettazione:
 Digitando un comando specifico (es. esci o quit), il programma termina immediatamente l'esecuzione.
 Il terminale del Mac ritorna al suo prompt dei comandi standard, senza mostrare stringhe di errore o eccezioni del codice.
 
+**- US 10 — Aggiunta di un limite di tempo per la partita**
+In qualità di giocatore, voglio poter impostare un limite di tempo per i turni o per l'intera partita, in modo tale da rendere le sfide più veloci e competitive.
+
+Criteri di accettazione:
+• All'avvio del gioco, il sistema permette di scegliere se attivare o meno la modalità a tempo.
+• Se attivato, il timer scorre in tempo reale e il tempo rimanente è visibile nell'interfaccia (o aggiornato a ogni input).
+• Se il tempo a disposizione di un giocatore scade durante il suo turno, il sistema interrompe la partita e assegna la vittoria all'avversario.
+• L'implementazione del timer non blocca l'inserimento dei comandi da tastiera.
+
+**- US 11 — Replay di una partita conclusa e visualizzazione della trascrizione delle mosse**
+In qualità di giocatore, voglio visualizzare e salvare la trascrizione di tutte le mosse effettuate, in modo tale da avere uno storico della partita e poter analizzare le strategie usate, e voglio poter caricare la trascrizione di una partita precedente e farne partire il replay, in modo tale da rivedere l'evoluzione della scacchiera passo dopo passo.
+
+Criteri di accettazione:
+• Il sistema registra ogni mossa valida (movimento del pedone o piazzamento di un muro) in una notazione standard (es. coordinata di arrivo o tipo/posizione del muro).
+• Durante la partita, i giocatori possono digitare un comando (es. log o history) per stampare a schermo l'elenco delle mosse giocate fino a quel momento.
+• Al termine della partita, la trascrizione completa viene salvata in un file di testo dedicato (es. match_history.txt).
+• Il sistema prevede una modalità "Replay" accessibile all'avvio del programma.
+• L'utente può specificare il file della partita da riprodurre.
+• Il sistema riproduce le mosse in ordine cronologico, aggiornando la scacchiera a schermo.
+• L'utente può avanzare alla mossa successiva premendo un tasto (es. Invio) o usare comandi per andare avanti/indietro.
+
+**- US 12 — Modalità multiplayer a 4 giocatori**
+In qualità di giocatore voglio poter impostare una partita con 4 partecipanti
+
+Criteri di accettazione:
+• All'avvio del gioco è possibile selezionare la modalità a 2 o a 4 giocatori.
+• Nella modalità a 4, la scacchiera inizializza 4 pedoni posizionati al centro dei 4 lati del tabellone.
+• Il contatore iniziale dei muri per ogni giocatore è impostato a 5 (invece di 10).
+• Il sistema di turni ruota ciclicamente tra i 4 giocatori.
+• La condizione di vittoria è aggiornata: ogni giocatore vince se raggiunge un qualsiasi punto del lato opposto a quello di partenza.
+
+**- US 13 — Avvio del gioco con un interfaccia grafica avanzata**
+In qualità di giocatore, voglio poter avviare il gioco con un'interfaccia grafica avanzata al posto del terminale
+
+Criteri di accettazione:
+• Il sistema supporta un flag da riga di comando per la modalità grafica. Digitando sul terminale del Mac il comando python3 main.py --gui, il gioco si avvia in una finestra dedicata usando la libreria PyQt6
+• Senza il flag --gui, il gioco continua a funzionare perfettamente nel terminale (CLI).
+• La GUI renderizza correttamente la griglia 9x9, i pedoni e i muri in 2D.
+• I giocatori possono cliccare con il mouse per selezionare la casella di destinazione del pedone o l'intersezione in cui piazzare il muro.
+• La logica di base (vittoria, regole di movimento, esaurimento muri) rimane invariata e condivisa tra CLI e GUI.
+
 ## 3.2 Requisiti non funzionali
-•	RNF1 (Usabilità): Il sistema deve garantire un'interfaccia a riga di comando (CLI) facilmente leggibile, sfruttando i colori ANSI e ripulendo lo schermo terminale a ogni turno per mantenere l'interfaccia ordinata.
-•	RNF2 (Portabilità): Il sistema deve poter essere eseguito senza problemi di dipendenze su diversi sistemi operativi, prevedendo un ambiente isolato tramite container Docker.
-•	RNF3 (Manutenibilità):Il codice è stato sottoposto a un processo di revisione continua (US 9). L'utilizzo del linter Ruff ha permesso di risolvere bug latenti e garantire che ogni file segua rigorosamente gli standard PEP 8, facilitando future estensioni del codice.
-•	RNF4 (Efficienza): Il sistema deve convalidare le mosse e, in particolare, verificare i percorsi validi durante il piazzamento dei muri in tempi non percettibili dall'utente, garantendo un'esperienza di gioco fluida.
-•	RNF5 (Affidabilità/Robustezza): Il sistema deve gestire correttamente eventuali input errati o non validi da parte dell'utente (es. coordinate scritte male, comandi inesistenti) mostrando un messaggio di errore chiaro e permettendo di reinserire il comando, senza mai causare il crash dell'applicazione.
+• RNF1 (Usabilità): Il sistema deve garantire un'interfaccia chiara, ordinata e facilmente leggibile per l'utente durante tutte le fasi di gioco, fornendo un'esperienza coerente sia nella classica modalità a riga di comando (CLI) sia nella nuova visualizzazione grafica avanzata (GUI).
+• RNF2 (Portabilità): Il sistema deve essere indipendente dalla piattaforma e poter essere eseguito senza problemi sui principali sistemi operativi, evitando conflitti di dipendenze anche per quanto concerne le librerie grafiche aggiuntive.
+• RNF3 (Manutenibilità): Il codice sorgente deve rispettare gli standard di formattazione della community Python, risultando facilmente leggibile e predisposto a future estensioni 
+• RNF4 (Efficienza): Il sistema deve validare le mosse in tempi non percettibili dall'utente, garantendo fluidità.
+• RNF5 (Affidabilità/Robustezza): Il sistema deve gestire input errati o non validi mostrando messaggi di errore chiari senza causare crash. Inoltre, deve garantire la persistenza sicura e strutturata dei dati.
 
 ## 4. System Design
 
 **4.1 Stile Architetturale**
 
 Abbiamo adottato il pattern architetturale Model-View-Controller (MVC). Questo stile è particolarmente indicato per i sistemi interattivi,perche separa nettamente la logica di presentazione dei dati dalla logica di business:
-•	Model : Include le classi che rappresentano il dominio dell'applicazione: la classe Player (che mantiene posizione, muri residui e target) e le strutture dati interne della classe Board (set di muri posizionati) costituiscono il Modello.
-•	View : È responsabile della rappresentazione visuale dei dati in particolare nel file board.py (tramite il metodo draw() che disegna la griglia) e supportata dal modulo colors.py per l'interfaccia a riga di comando (CLI).
-•	Controller : Gestisce la sequenza di interazioni con l'utente, accetta l'input testuale e lo trasforma in comandi per il Modello o la Vista. La classe QuoridorGame funge da Controller: gestisce il ciclo dei turni (game loop), esegue la validazione complessa delle mosse (come l'algoritmo Breadth-First Search per verificare che i muri non blocchino il percorso) e aggiorna di conseguenza il Modello.
+
+•	Model : Include le classi che rappresentano il dominio dell'applicazione:
+
+    •	Board (da board.py): Memorizza la struttura del campo da gioco (dimensioni) e i set (set()) delle coordinate dove sono fisicamente piazzati i muri orizzontali e verticali.
+    •	Player (da player.py): Contiene lo stato del singolo partecipante: nome, colore, posizione corrente sulla griglia, numero di muri rimasti in riserva e riga/colonna obiettivo per la vittoria.
+    •	GameTimer e PlayerTimer (da timer.py): Si occupano esclusivamente del calcolo numerico dei secondi a disposizione e della gestione dei preset (es. Bullet, Blitz).
+    •	Transcript, GameRecord, MoveRecord, PlayerSnapshot (da transcript.py): Sono le strutture dati (principalmente dataclass) adibite alla memoria storica. Registrano le coordinate delle mosse, gli istanti temporali e creano un fascicolo salvabile della partita.
+        
+•	View : È responsabile della rappresentazione visuale dei dati:
+
+    Interfaccia CLI (src/view/)
+        •	View (da view.py): Si occupa interamente della stampa testuale. Formatta la scacchiera in ASCII art, gestisce i codici colore ANSI, mostra i menu e cattura l'input da tastiera (es. digitazione di "e4" o "PO e4").
+    Interfaccia GUI (src/gui/)
+        •	BoardWidget (da board_widget.py): Disegna fisicamente la griglia di Quoridor, le pedine arrotondate, i muri al neon e rileva i click del mouse tramite i metodi di PyQt/PySide.
+        •	MainWindow (da main_window.py): Il contenitore principale che aggrega l'intero layout grafico della partita in corso.
+        •	TimerWidget e TranscriptWidget (e MoveRow): Disegnano rispettivamente i display digitali del conto alla rovescia e la lista scorrevole delle mosse effettuate.
+        •	ReplayDialog (da replay_dialog.py): La finestra secondaria adibita alla navigazione visuale delle partite salvate nello storico.
+        
+•	Controller : Gestisce la sequenza di interazioni con l'utente, accetta l'input testuale e lo trasforma in comandi per il Modello o la Vista:
+
+    •	QuoridorEngine (da game_engine.py): È il nucleo delle regole (Business Logic). È qui che viene verificato se un muro è valido, se uno spostamento è legale (puoi_muovere) ed è qui che risiede l'algoritmo di ricerca (BFS in esiste_percorso) per impedire che un giocatore venga chiuso completamente.
+    •	GameState (da game_engine.py): Una classe di "trasporto". Impacchetta la situazione calcolata dall'Engine per passarla in sicurezza alla View senza che quest'ultima debba spulciare nei calcoli complessi.
+    •	QuoridorGame (da game.py): Gestisce il loop procedurale della modalità terminale. Coordina i passaggi: chiede l'input alla View, lo passa al QuoridorEngine per la convalida, elabora le eccezioni o i timeout, e comanda nuovamente alla View di aggiornare lo schermo.
 
 **4.2 Principi di progettazione per il cambiamento**
 
@@ -214,6 +304,8 @@ Nel nostro sistema, il package "Main" funge da client assoluto, mentre il cuore 
 Il diagramma dei componenti modella il sistema mostrando come le diverse parti (componenti) offrono o richiedono interfacce (API) per comunicare.
 Nel nostro gioco CLI, QuoridorGame espone l'interfaccia principale play() al sistema operativo, e al suo interno richiede i servizi di gestione stato da Player e Board.
 
+
+
     componentDiagram
 
     component "main.py" as Main
@@ -225,6 +317,12 @@ Nel nostro gioco CLI, QuoridorGame espone l'interfaccia principale play() al sis
     Game ..> Board : <<requires>> \n draw()
     Game ..> Player : <<requires>> \n has_won() / place_wall()
 
+### 4.5 Scelte Implementative e Tecnologiche
+Per soddisfare i requisiti non funzionali sopra citati, il team ha preso le seguenti decisioni di progetto:
+
+* **Interfaccia (View):** Per garantire l'usabilità (RNF1), si è scelto di utilizzare le sequenze di escape (colori ANSI) per differenziare visivamente i giocatori e i muri, e di effettuare il clear del terminale a ogni turno per simulare un'interfaccia statica.
+* **Containerizzazione:** Per soddisfare il requisito di portabilità (RNF2), abbiamo optato per la containerizzazione tramite **Docker**, creando un ambiente di esecuzione isolato e identico su qualsiasi macchina.
+* **Qualità del Codice:** Per assicurare la manutenibilità (RNF3), abbiamo integrato nel nostro flusso di lavoro il linter **Ruff**, che ha imposto e verificato automaticamente il rispetto delle convenzioni architetturali PEP 8.
 
 8. Analisi retrospettiva
 8.1 Sprint 0
