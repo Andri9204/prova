@@ -2,14 +2,14 @@
 
 ## Indice
 
-- [Introduzione](#-1.-Introduzione)
-- [Modello di dominio](#-2.-Modello-di-dominio)
-- [Requisiti specifici](#-3.-Requisiti-specifici)
-- [System design](#-4.-System-design)
-- [OO design](#-5.-OO-design)
-- [Riepilogo dei test](#-6.-Riepilogo-dei-test)
-- [Modalità di collaborazione del team](#-7.-Modalità-di-collaborazione-del-team)
-- [Analisi retrospettiva](#-8.-Analisi-retrospettiva)
+- [Introduzione](#1-Introduzione)
+- [Modello di dominio](#2-Modello-di-dominio)
+- [Requisiti specifici](#3-Requisiti-specifici)
+- [System design](#4-System-design)
+- [OO design](#5-OO-design)
+- [Riepilogo dei test](#6-Riepilogo-dei-test)
+- [Modalità di collaborazione del team](#7-Modalità-di-collaborazione-del-team)
+- [Analisi retrospettiva](#8-Analisi-retrospettiva)
 
 
 ## 1. Introduzione
