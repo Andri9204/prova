@@ -1,4 +1,13 @@
 # Relazione Tecnica - Quoridor
+
+## Indice
+
+- [Accettazione assignment del primo componente e creazione repository su GitHub](#Accettazione-assignment-del-primo-componente-e.creazione-repository-su-GitHub)
+- [Accettazione assignment degli altri componenti e accesso al repository su GitHub](#Accettazione-assignment-degli-altri-componenti-e-accesso-al-repository-su-GitHub)s
+- [Configurazione del repository su GitHub](#Configurazione-del-repository-su-GitHub)
+- [Abilitazione package/immagini Docker](#Abilitazione-package/immagini-Docker)
+- [Aggiunta del badge di GitHub Actions nel README](#Aggiunta-del-badge-di-GitHub-Actions-nel-README)
+
 ## 1. Introduzione
 Questo documento descrive le scelte progettuali, l'architettura e i requisiti del progetto Quoridor. Il software è un'implementazione in Python del celebre gioco da tavolo, che permette a due giocatori di sfidarsi su una scacchiera 9x9. L'obiettivo è raggiungere il lato opposto della plancia prima dell'avversario, gestendo strategicamente il movimento del proprio pedone e il posizionamento di muri per ostacolare l'altro giocatore.
 ## 2. Modello di dominio
@@ -10,8 +19,8 @@ Le entità fondamentali sono:
 
 **Diagramma delle Classi**:
 
-`classDiagram`
-    `direction TB`
+    classDiagram
+        direction TB
 
     class View {
         interfaccia visiva
@@ -87,7 +96,7 @@ Le entità fondamentali sono:
     Player "1" --> "1" PlayerTimer : è limitato da
     Transcript "1" --> "1" GameRecord : salva archivio in
 
-![quoeidorGame](./quoridorGame.png)
+![quoridorGame](./quoridorGame.png)
 
 ## 3. Requisiti specifici
 
@@ -224,10 +233,15 @@ Criteri di accettazione:
 • La logica di base (vittoria, regole di movimento, esaurimento muri) rimane invariata e condivisa tra CLI e GUI.
 
 ## 3.2 Requisiti non funzionali
+
 • RNF1 (Usabilità): Il sistema deve garantire un'interfaccia chiara, ordinata e facilmente leggibile per l'utente durante tutte le fasi di gioco, fornendo un'esperienza coerente sia nella classica modalità a riga di comando (CLI) sia nella nuova visualizzazione grafica avanzata (GUI).
+
 • RNF2 (Portabilità): Il sistema deve essere indipendente dalla piattaforma e poter essere eseguito senza problemi sui principali sistemi operativi, evitando conflitti di dipendenze anche per quanto concerne le librerie grafiche aggiuntive.
+
 • RNF3 (Manutenibilità): Il codice sorgente deve rispettare gli standard di formattazione della community Python, risultando facilmente leggibile e predisposto a future estensioni 
+
 • RNF4 (Efficienza): Il sistema deve validare le mosse in tempi non percettibili dall'utente, garantendo fluidità.
+
 • RNF5 (Affidabilità/Robustezza): Il sistema deve gestire input errati o non validi mostrando messaggi di errore chiari senza causare crash. Inoltre, deve garantire la persistenza sicura e strutturata dei dati.
 
 ## 4. System Design
@@ -238,32 +252,35 @@ Abbiamo adottato il pattern architetturale Model-View-Controller (MVC). Questo s
 
 •	Model : Include le classi che rappresentano il dominio dell'applicazione:
 
-    •	Board (da board.py): Memorizza la struttura del campo da gioco (dimensioni) e i set (set()) delle coordinate dove sono fisicamente piazzati i muri orizzontali e verticali.
-    •	Player (da player.py): Contiene lo stato del singolo partecipante: nome, colore, posizione corrente sulla griglia, numero di muri rimasti in riserva e riga/colonna obiettivo per la vittoria.
-    •	GameTimer e PlayerTimer (da timer.py): Si occupano esclusivamente del calcolo numerico dei secondi a disposizione e della gestione dei preset (es. Bullet, Blitz).
-    •	Transcript, GameRecord, MoveRecord, PlayerSnapshot (da transcript.py): Sono le strutture dati (principalmente dataclass) adibite alla memoria storica. Registrano le coordinate delle mosse, gli istanti temporali e creano un fascicolo salvabile della partita.
+*	Board (da board.py): Memorizza la struttura del campo da gioco (dimensioni) e i set (set()) delle coordinate dove sono fisicamente piazzati i muri orizzontali e verticali.
+*	Player (da player.py): Contiene lo stato del singolo partecipante: nome, colore, posizione corrente sulla griglia, numero di muri rimasti in riserva e riga/colonna obiettivo per la vittoria.
+*	GameTimer e PlayerTimer (da timer.py): Si occupano esclusivamente del calcolo numerico dei secondi a disposizione e della gestione dei preset (es. Bullet, Blitz).
+*	Transcript, GameRecord, MoveRecord, PlayerSnapshot (da transcript.py): Sono le strutture dati (principalmente dataclass) adibite alla memoria storica. Registrano le coordinate delle mosse, gli istanti temporali e creano un fascicolo salvabile della partita.
         
 •	View : È responsabile della rappresentazione visuale dei dati:
 
-    Interfaccia CLI (src/view/)
-        •	View (da view.py): Si occupa interamente della stampa testuale. Formatta la scacchiera in ASCII art, gestisce i codici colore ANSI, mostra i menu e cattura l'input da tastiera (es. digitazione di "e4" o "PO e4").
+*    Interfaccia CLI (src/view/)
+*	View (da view.py): Si occupa interamente della stampa testuale. Formatta la scacchiera in ASCII art, gestisce i codici colore ANSI, mostra i menu e cattura l'input da tastiera (es. digitazione di "e4" o "PO e4").
     Interfaccia GUI (src/gui/)
-        •	BoardWidget (da board_widget.py): Disegna fisicamente la griglia di Quoridor, le pedine arrotondate, i muri al neon e rileva i click del mouse tramite i metodi di PyQt/PySide.
-        •	MainWindow (da main_window.py): Il contenitore principale che aggrega l'intero layout grafico della partita in corso.
-        •	TimerWidget e TranscriptWidget (e MoveRow): Disegnano rispettivamente i display digitali del conto alla rovescia e la lista scorrevole delle mosse effettuate.
-        •	ReplayDialog (da replay_dialog.py): La finestra secondaria adibita alla navigazione visuale delle partite salvate nello storico.
+*	BoardWidget (da board_widget.py): Disegna fisicamente la griglia di Quoridor, le pedine arrotondate, i muri al neon e rileva i click del mouse tramite i metodi di PyQt/PySide.
+*	MainWindow (da main_window.py): Il contenitore principale che aggrega l'intero layout grafico della partita in corso.
+*	TimerWidget e TranscriptWidget (e MoveRow): Disegnano rispettivamente i display digitali del conto alla rovescia e la lista scorrevole delle mosse effettuate.
+*	ReplayDialog (da replay_dialog.py): La finestra secondaria adibita alla navigazione visuale delle partite salvate nello storico.
         
 •	Controller : Gestisce la sequenza di interazioni con l'utente, accetta l'input testuale e lo trasforma in comandi per il Modello o la Vista:
 
-    •	QuoridorEngine (da game_engine.py): È il nucleo delle regole (Business Logic). È qui che viene verificato se un muro è valido, se uno spostamento è legale (puoi_muovere) ed è qui che risiede l'algoritmo di ricerca (BFS in esiste_percorso) per impedire che un giocatore venga chiuso completamente.
-    •	GameState (da game_engine.py): Una classe di "trasporto". Impacchetta la situazione calcolata dall'Engine per passarla in sicurezza alla View senza che quest'ultima debba spulciare nei calcoli complessi.
-    •	QuoridorGame (da game.py): Gestisce il loop procedurale della modalità terminale. Coordina i passaggi: chiede l'input alla View, lo passa al QuoridorEngine per la convalida, elabora le eccezioni o i timeout, e comanda nuovamente alla View di aggiornare lo schermo.
+*	QuoridorEngine (da game_engine.py): È il nucleo delle regole (Business Logic). È qui che viene verificato se un muro è valido, se uno spostamento è legale (puoi_muovere) ed è qui che risiede l'algoritmo di ricerca (BFS in esiste_percorso) per impedire che un giocatore venga chiuso completamente.
+*	GameState (da game_engine.py): Una classe di "trasporto". Impacchetta la situazione calcolata dall'Engine per passarla in sicurezza alla View senza che quest'ultima debba spulciare nei calcoli complessi.
+*	QuoridorGame (da game.py): Gestisce il loop procedurale della modalità terminale. Coordina i passaggi: chiede l'input alla View, lo passa al QuoridorEngine per la convalida, elabora le eccezioni o i timeout, e comanda nuovamente alla View di aggiornare lo schermo.
 
 **4.2 Principi di progettazione per il cambiamento**
 
 L'architettura è stata pensata per minimizzare l'impatto di future modifiche, seguendo i principi di progettazione per il cambiamento:
+
 •	Presentazione separata: La parte di codice relativa alla presentazione visiva è stata tenuta separata dal resto dell'applicazione per esempio è stata isolata la logica di calcolo dalla stampa a schermo.
+
 •	Obiettivo di alta coesione: Abbiamo assegnato le responsabilità in modo tale da ottenere componenti con compiti ben definiti. Ad esempio, la classe Player ha l'unica responsabilità di gestire le proprie statistiche e verificare il raggiungimento della riga obiettivo (has_won()), delegando il resto al Controller.
+
 •	Principio di Information Hiding: Ogni componente custodisce dei segreti al proprio interno (incapsulamento dei dati). I dettagli implementativi di basso livello, come i set contenenti le coordinate dei muri (h_muri, v_muri), sono nascosti all'interno di Board ed esposti al Controller solo per aggiornamenti controllati.
 
 **4.3 Diagramma dei Package**
@@ -272,60 +289,331 @@ Nel nostro sistema, il package "Main" funge da client assoluto, mentre il cuore 
 
     flowchart TD
     
+    
+    
     subgraph src [" Sottosistema src/ (Core Application) "]
-
-        
-        Controller["game.py<br>(QuoridorGame)"]
-
+    
         subgraph root [" Punto di Ingresso "]
-            Main["main.py"]
+            Main["src/main.py"]
         end
-        
-        subgraph Domain [" Modello e Dominio "]
-            Board["board.py<br>(Board)"]
-            Player["player.py<br>(Player)"]
+    
+        subgraph gui_pkg [" Interfaccia Grafica "]
+            GUI["src/gui/"]
         end
-        
-        subgraph Utils [" Utility "]
-            Colors["colors.py<br>(Col)"]
+    
+        subgraph controller_pkg [" Logica e Regole "]
+            Controller["src/controller/"]
         end
+    
+        subgraph view_pkg [" Interfaccia Terminale "]
+            View["src/view/"]
+        end
+    
+        subgraph base_pkg [" Moduli Base e Utility "]
+            Colors["src/colors.py"]
+            Timer["src/timer.py"]
+            Transcript["src/transcript.py"]
+            Replay["src/replay.py"]
+        end
+    
+        subgraph model_pkg [" Modello e Dominio "]
+            Model["src/model/"]
+        end
+    
     end
-
-    Main -.->|avvia| Controller
-    Controller -.->|coordina| Board
-    Controller -.->|coordina| Player
-    Controller -.->|usa| Colors
-    Board -.->|usa| Colors
+    
+    %% Dipendenze dal punto di ingresso principale
+    Main -.->|importa| GUI
+    Main -.->|importa| Controller
+    Main -.->|importa| View
+    
+    %% Dipendenze dell'interfaccia grafica
+    GUI -.->|importa| Controller
+    GUI -.->|importa| Model
+    GUI -.->|importa| base_pkg
+    
+    %% Dipendenze del coordinatore della logica
+    Controller -.->|importa| View
+    Controller -.->|importa| Model
+    Controller -.->|importa| base_pkg
+    
+    %% Dipendenze della vista da terminale
+    View -.->|importa| Model
+    View -.->|importa| base_pkg
+    
+    %% Dipendenze dei moduli di base
+    base_pkg -.->|importa| Model
 
 ![DMpackage](./DMpackage.png)
 
-(Nota: le frecce tratteggiate indicano le dipendenze <<import>> o l'utilizzo delle API pubbliche tra i moduli).
-4.4 Diagramma dei Componenti
-Il diagramma dei componenti modella il sistema mostrando come le diverse parti (componenti) offrono o richiedono interfacce (API) per comunicare.
-Nel nostro gioco CLI, QuoridorGame espone l'interfaccia principale play() al sistema operativo, e al suo interno richiede i servizi di gestione stato da Player e Board.
+**4.4 Scelte Progettuali**
 
-
-
-    componentDiagram
-
-    component "main.py" as Main
-    component "game.py" as Game
-    component "board.py" as Board
-    component "player.py" as Player
-
-    Main ..> Game : <<requires>> \n play()
-    Game ..> Board : <<requires>> \n draw()
-    Game ..> Player : <<requires>> \n has_won() / place_wall()
-
-### 4.5 Scelte Implementative e Tecnologiche
-Per soddisfare i requisiti non funzionali sopra citati, il team ha preso le seguenti decisioni di progetto:
+Il team ha preso le seguenti decisioni di progetto:
 
 * **Interfaccia (View):** Per garantire l'usabilità (RNF1), si è scelto di utilizzare le sequenze di escape (colori ANSI) per differenziare visivamente i giocatori e i muri, e di effettuare il clear del terminale a ogni turno per simulare un'interfaccia statica.
 * **Containerizzazione:** Per soddisfare il requisito di portabilità (RNF2), abbiamo optato per la containerizzazione tramite **Docker**, creando un ambiente di esecuzione isolato e identico su qualsiasi macchina.
 * **Qualità del Codice:** Per assicurare la manutenibilità (RNF3), abbiamo integrato nel nostro flusso di lavoro il linter **Ruff**, che ha imposto e verificato automaticamente il rispetto delle convenzioni architetturali PEP 8.
 
-8. Analisi retrospettiva
-8.1 Sprint 0
-Durante lo Sprint 0 il team si è focalizzato sulla configurazione dell'ambiente di sviluppo e sulla definizione dell'architettura di base.
-•	Azioni correttive: Nella fase iniziale abbiamo riscontrato alcune difficoltà nella sincronizzazione dei branch su GitHub e nella gestione dei conflitti sui file principali.
-•	Soluzione intrapresa: Per risolvere il problema, abbiamo stabilito una politica rigorosa di naming dei branch (es. feature/nome-funzionalità) e l'obbligo di effettuare una Pull Request con revisione obbligatoria da parte di un altro membro del team prima del merge nel main. Questo ha drasticamente ridotto gli errori di integrazione.
+## 5. OO design (objected-oriented design)
+
+**5.1 Diagramma delle Classi (Prospettiva Software)**
+
+    classDiagram
+        direction TB
+
+    class QuoridorGame {
+        +QuoridorEngine engine
+        +View view
+        +GameTimer game_timer
+        +Transcript transcript
+        +int num_giocatori
+        +play()
+        +cambia_turno()
+        +controlla_mossa_singola(...) bool
+        -_registra(tipo: str, coordinata: str)
+        -_salva_partita(vincitore: str)
+        -_gestisci_timeout()
+    }
+
+    class QuoridorEngine {
+        +list~Player~ giocatori
+        +int turno_idx
+        +bool self_finita
+        +str self_vincitore
+        +nuova_partita(nomi: list)
+        +muovi(nr: int, nc: int) MoveResult
+        +piazza_muro(tipo: str, r: int, c: int) WallResult
+        +puoi_muovere(p_partenza, p_arrivo) bool
+        +esiste_percorso(pos, giocatore: Player) bool
+        +tutti_hanno_percorso() bool
+        -muro_valido(tipo: str, r: int, c: int) bool
+    }
+
+    class Board {
+        +int size
+        +set h_muri
+        +set v_muri
+        +draw(giocatori: list)
+    }
+
+    class Player {
+        +str name
+        +str symbol
+        +str color
+        +list pos
+        +int muri
+        +str target
+        +target_row() int
+        +target_col() int
+        +has_won() bool
+        +place_wall() bool
+    }
+
+    class View {
+        +stampa_griglia(board: Board, giocatori: list)
+        +chiedi_input(prompt: str) str
+        +stampa_aiuto()
+        +stampa_menu()
+        +stampa_errore(msg: str)
+    }
+
+    class Transcript {
+        +GameRecord self_record
+        +int self_counter
+        +registra(giocatore: str, tipo: str, coordinata: str)
+        +salva() str
+        +mosse() list~MoveRecord~
+    }
+
+    class GameTimer {
+        +dict PRESETS
+        +list~PlayerTimer~ timers
+        +int self_active
+        +switch(to: int)
+        +stop(idx: int)
+    }
+
+    QuoridorGame "1" *-- "1" QuoridorEngine : coordina
+    QuoridorGame "1" *-- "1" View : I/O
+    QuoridorGame "1" *-- "1" Transcript : usa
+    QuoridorGame "1" *-- "1" GameTimer : usa
+    QuoridorEngine "1" *-- "1" Board : verifica regole su
+    QuoridorEngine "1" *-- "2..4" Player : gestisce
+
+![classi-quoridorGame](./classi-quoridorGame.png)
+
+**5.2 Diagrammi di Sequenza per le User Story più Importanti**
+
+Diagramma 1: Movimento Pedone e Controllo Vittoria (US 2 + US 5)
+
+Questo diagramma mostra come il sistema processa l'input di movimento di un utente, valida la richiesta rispetto ai limiti della scacchiera e ai muri, e verifica automaticamente se la mossa porta alla vittoria.
+
+    sequenceDiagram
+        actor Utente
+        participant V as View
+        participant QG as QuoridorGame
+        participant QE as QuoridorEngine
+        participant P as Player
+
+    Utente->>V: Inserisce "e4" (mossa)
+    V-->>QG: Ritorna stringa "e4"
+    QG->>QE: muovi(riga, colonna)
+    
+    activate QE
+    QE->>QE: puoi_muovere(partenza, arrivo)
+    
+    alt Mossa Legale
+        QE->>P: Aggiorna pos (riga, colonna)
+        QE->>P: has_won()
+        
+        alt Vittoria raggiunta (US 5)
+            P-->>QE: Ritorna True
+            QE-->>QG: MoveResult.VINTO
+            QG->>V: stampa_errore("VINCE [Nome]")
+        else Partita continua
+            P-->>QE: Ritorna False
+            QE-->>QG: MoveResult.OK
+            QG->>QG: cambia_turno()
+            QG->>V: stampa_griglia()
+        end
+        
+    else Mossa Illegale (es. muro o fuori scacchiera)
+        QE-->>QG: MoveResult.NON_VALIDO
+        QG->>V: stampa_errore("Mossa non valida")
+        V-->>Utente: Mostra Errore
+    end
+    deactivate QE
+
+![diagramma1-US](./diagramma1-US.png)
+
+Diagramma 2: Piazzamento Muro e Controllo Percorso (US 3)
+
+Questo diagramma è cruciale perché mostra l'invocazione dell'algoritmo di ricerca (BFS) per garantire che un muro non blocchi mai completamente il percorso verso l'obiettivo.
+
+    sequenceDiagram
+        actor Utente
+        participant V as View
+        participant QG as QuoridorGame
+        participant QE as QuoridorEngine
+        participant B as Board
+        participant P as Player
+
+    Utente->>V: Inserisce "PO e4"
+    V-->>QG: Ritorna comando
+    QG->>QE: piazza_muro("PO", riga, colonna)
+    
+    activate QE
+    QE->>QE: _muro_valido(tipo, r, c)
+    
+    alt Spazio libero
+        QE->>B: Aggiunge temporaneamente il muro nei set
+        QE->>QE: tutti_hanno_percorso()
+        note right of QE: Esegue BFS (esiste_percorso) per ogni giocatore
+        
+        alt Il percorso esiste
+            QE->>P: place_wall() (decrementa muri residui)
+            P-->>QE: True
+            QE-->>QG: WallResult.OK
+            QG->>QG: cambia_turno()
+        else Percorso completamente bloccato
+            QE->>B: Rimuove il muro dai set (rollback)
+            QE-->>QG: WallResult.BLOCCA_PERCORSO
+            QG->>V: stampa_errore("Non puoi bloccare il percorso!")
+        end
+    else Muro già presente
+        QE-->>QG: WallResult.NON_VALIDO
+        QG->>V: stampa_errore("Muro non valido")
+    end
+    deactivate QE
+
+![diagramma2-US](./diagramma2-US.png)
+
+**5.3 Commento sulle Decisioni con Riferimento ai Principi di OO Design**
+
+*	Alta Coesione (High Cohesion): Ogni classe ha una sola responsabilità ben focalizzata ed evita di farsi carico di compiti estranei. La Board gestisce solo la griglia e i muri inseriti; Player memorizza solo lo stato del singolo giocatore; i file dei timer calcolano solo lo scorrere dei secondi.
+
+*	Basso Accoppiamento (Low Coupling): Le classi comunicano attraverso interfacce snelle e non sono strettamente dipendenti dai dettagli interni l'una dell'altra. Ad esempio, la componente di visualizzazione (View) non conosce l'algoritmo BFS utilizzato per controllare l'isolamento dei percorsi, ma si limita a mostrare i dati. Questo vi ha permesso di separare nettamente lo sviluppo della CLI da quello della GUI, potendo cambiare interfaccia senza modificare la logica delle regole.
+
+*	Information Expert: Le responsabilità di calcolo sono state assegnate alle classi che possiedono le informazioni necessarie per completarle. Ad esempio, il controllo sulla condizione di vittoria (has_won()) o il decremento dei muri residui risiedono direttamente nella classe Player, in quanto custode naturale del proprio stato interno.
+
+**5.4 Applicazione di Design Pattern**
+
+1. Pattern Facade (Strutturale)
+
+*	Problema teorico: Come è possibile fornire un'interfaccia semplice per un sottosistema complesso? Fornire un'interfaccia unificata di più alto livello rispetto alle interfacce del sottosistema.
+
+    `Applicazione nel codice: La classe QuoridorEngine implementa perfettamente il pattern Facade. Il controllo delle regole di Quoridor è estremamente complesso (richiede di controllare coordinate incrociate sui set della classe Board, calcolare salti dei pedoni e lanciare algoritmi grafi BFS come esiste_percorso()). Se il controllore principale (QuoridorGame) dovesse fare tutto questo, il codice sarebbe illeggibile. Invece, l'Engine fa da "Facciata", esponendo al QuoridorGame metodi semplici e ad alto livello come muovi() e piazza_muro(), nascondendo al suo interno tutta la complessità matematica e algoritmica.`
+
+2. Pattern Memento (Comportamentale)
+
+*	Problema teorico: Senza violare l'incapsulamento, come può lo stato interno di un oggetto essere catturato ed esternalizzato in modo tale che l'oggetto possa essere successivamente ripristinato a quello stato.
+
+    `Applicazione nel codice: Abbiamo utilizzato questo pattern per soddisfare la US 11 (Replay della partita). Attraverso le classi del modulo transcript.py (GameRecord, MoveRecord e in particolare PlayerSnapshot), il sistema cattura un'istantanea esatta (Snapshot/Memento) delle posizioni dei pedoni e dei muri a ogni singola mossa, archiviandoli senza alterare lo stato in corso. La classe ReplayEngine e il ReplayDialog ricaricano gli oggetti di stato salvati e passandoli al tabellone per far "tornare indietro nel tempo" la partita e riprodurre lo stato precedente.`
+
+## 6. Riepilogo dei test
+
+## 7. Modalità di collaborazione del team
+
+Al fine di ottimizzare il ciclo di sviluppo per l'ampliamento del codice base del gioco, il team ha adottato un approccio ispirato ai principi dello sviluppo agile  mantenendo un approccio estremamente pratico e snello, evitando di l'utilizzo di troppi tool di gestione esterni (es. board complesse come Jira o Trello) e concentrandoci sul lavoro effettivo. Inoltre il gruppo ha strutturato la collaborazione coniugando momenti formali di coordinamento, l'uso di canali di comunicazione immediati e l'applicazione rigorosa dei flussi di gestione della configurazione del software.
+
+**Gestione del codice e flusso di lavoro**
+
+Il cuore pulsante del nostro progetto è stata la piattaforma GitHub. Inoltre c'è stato l'affiancamento dei propri ambienti locali sui quali ogni membro del gruppo ha lavorato in autonomia. Per consentire l'isolamento dello sviluppo delle diverse funzionalità, evitando sovrascritture accidentali del codice e minimizzando l'insorgenza di conflitti di merge, il team ha adottato in modo sistematico il modello del GitHub Flow:
+
+1.⁠    ciascuna macro-task o funzionalità da implementare è stata associata a un'attività specifica e ogni componente del gruppo ha lavorato in isolamento all'interno di un branch dedicato ad essa effettuando commit frequenti inerenti alle modifiche attuate, mantenendo così sempre stabile il ramo principale.
+    
+2.⁠    una volta completata la propria funzionalità è stato effettuato il push sul repository remoto, aprendo contestualmente una Pull Request.  Questo ci dava modo di controllare le modifiche fatte, di capire a che punto dell’attività assegnata fossero ogni membro e di integrare gli aggiornamenti nel progetto in modo sicuro e ordinato.
+    
+3.⁠    ⁠solo a seguito del feedback positivo con approvazione del/dei reviewer si è proceduto alla fusione (merge) del codice nel ramo principale.
+
+**Comunicazione e sincronizzazione**
+
+La sincronizzazione del team è stata strutturata ricalcando in modo agile i principali eventi del framework Scrum: 
+
+*   ⁠Sprint Planning (Pianificazione dell'iterazione): all'inizio di sprint, il team si è riunito in videocall tramite la piattaforma Google Meet. In questa sede sono stati analizzati i requisiti del codice base, pianificate le estensioni necessarie e distribuiti informalmente i task tra i componenti.
+    
+*   ⁠Daily Scrum asincrono: la comunicazione quotidiana e operativa è stata interamente affidata a un canale dedicato su WhatsApp, concepito come un vero e proprio "ufficio virtuale". Questo strumento ha consentito di mantenere un allineamento continuo coordinando in tempo reale le notifiche di apertura delle Pull Request, lo scambio rapido di pareri tecnici sulla risoluzione di bug bloccanti e la rimozione immediata di eventuali ostacoli allo sviluppo.
+    
+*   ⁠Sprint Review e Retrospective (Verifica finale): alla conclusione di ogni sprint, prima della sottomissione degli avanzamenti, il team si è riunito nuovamente su Google Meet per un collaudo collettivo del software funzionante. Durante queste sessioni è stato verificato che l'incremento di codice soddisfacesse tutti i requisiti di correttezza e è stato analizzato l'andamento del processo collaborativo per individuare e applicare tempestivamente azioni correttive nelle iterazioni successive.
+
+## 8. Analisi retrospettiva
+
+Abbiamo svolto senza molte difficolta tutte le issue assegnate dimostrando familiarità da parte del team con gli strumenti Git , il GitHub Flow e i processi di base dello sviluppo Agile.
+
+**8.1 Sprint 0**
+
+**Analisi dei problemi e azioni correttive:**
+
+Durante la revisione del lavoro, sono emerse soltanto alcune problematiche rispetto alle best practice attese, che abbiamo analizzato per migliorare il flusso nei prossimi Sprint.
+
+•	Problema 1 (Rilevanza: maggiore): Tracciabilità dei commit e profili non linkati. È stato rilevato che i commit non provenivano da profili locali non correttamente collegati agli account GitHub ufficiali dei membri del team.
+
+`•	Azione Correttiva: Prima di iniziare lo Sprint 1, ogni membro del team ha eseguito una verifica sul terminale del proprio computer per assicurarsi che le credenziali Git locali siano esatte. Abbiamo utilizzato il comando git config --global user.email per allinearli ai profili Github`
+
+•	Problema 2 (Rilevanza: minore): Accumulo di branch aperti. Al termine dello Sprint è stata notata la presenza di molteplici branch ancora aperti nel repository remoto, nonostante le relative issue fossero state chiuse.
+
+`•	Azione Correttiva: Abbiamo integrato una nuova regola nel nostro GitHub Flow interno. D'ora in avanti, chiunque effettui il merge di una Pull Request nel branch main avrà anche la responsabilità di eliminare immediatamente il branch obsoleto.`
+
+**8.2 Sprint 1**
+
+•    Problema 1 (Rilevanza: maggiore): Modello di dominio espresso da un diagramma delle classi con prospettiva software. Avevamo presentato un modello di dominio troppo vicino al codice reale. Avevamo inserito tipi di dato (come int, string), metodi implementativi e dettagli tecnici, confondendo l'astrazione concettuale con la progettazione software vera e propria.
+
+`•	Azione correttiva: Abbiamo ridisegnato da zero il modello di dominio adottando una rigorosa prospettiva concettuale. Abbiamo eliminato ogni riferimento ai tipi primitivi e ai metodi, concentrandoci esclusivamente sulle entità del mondo reale (es. Board, Player, Muro) e sulle loro relazioni logiche (associazioni etichettate con verbi come "ospita", "è limitato da"), rendendo il diagramma totalmente indipendente dal codice.`
+
+•    Problema 2 (Rilevanza: maggiore): Incoerenza tra lo stile MVC dichiarato, l'organizzazione del codice e il diagramma dei package. Pur avendo dichiarato di voler utilizzare il pattern architetturale Model-View-Controller, la suddivisione fisica dei file nelle cartelle non rispettava appieno questo standard.
+
+`•	Azione correttiva: Abbiamo effettuato un profondo refactoring del codice sorgente. Abbiamo separato rigidamente le directory in src/model/, src/view/, src/gui/ e src/controller/. Ci siamo assicurati che il Modello contenesse solo classi di dati pure (totalmente isolato dalle interfacce), che le View gestissero solo l'I/O e che il Controller fungesse da reale mediatore. Infine, abbiamo aggiornato il diagramma dei package per mostrare il corretto flusso unidirezionale delle dipendenze (ad esempio, la View che importa il Model, ma mai viceversa).`
+
+•    Problema 3 (Rilevanza: minore): Aggiunti requisiti non funzionali non richiesti che sono in realtà decisioni di progetto. Nel documento dei requisiti nella categoria "requisiti non funzionali" avevamo inserito requisiti non funzionali che, in realtà, rappresentavano delle nostre scelte progettuali.
+
+`•	Azione correttiva: Abbiamo aggiornato il catalogo dei requisiti, rimuovendo i vincoli tecnologici dalla sezione dei requisiti non funzionali e li abbiamo spostat correttamente nella sezione dedicata alle "scelte progettuali" e all'architettura software.`
+
+•    Problema 4 (Rilevanza: minore): Notazione del diagramma dei package non coerente con il nome del diagramma. Gli identificatori utilizzati per rappresentare visivamente alcuni package non erano coerenti in realtà con quelli utilizzati nel codice del diagramma dei package.
+
+`•	Azione correttiva: Abbiamo aggiornato la grafica del diagramma utilizzando i corretti identificatori che rappresentavano i package e inoltre abbiamo implementato la sintassi e la notazione UML standard per i package, utilizzando l'apposito stereotipo <<package>> per definire i raggruppamenti logici (le nostre cartelle principali) e esplicitando le dipendenze utilizzando le frecce tratteggiate con lo stereotipo <<import>>.`
+
+•    Problema 5 (Rilevanza: minore): Il milestone dello Sprint 0 non è stato chiuso. Sulla nostra repository GitHub, il milestone associato allo Sprint 0 era rimasto erroneamente in stato "aperto".
+
+`•	Azione correttiva: Abbiamo immediatamente provveduto a chiudere il milestone dello Sprint 0 su GitHub. Per assicurarci che questa disattenzione non si ripeta, abbiamo stabilito una nuova regola interna: al termine di ogni sprint, durante il momento di allineamento finale, ci assicuriamo di fare un controllo incrociato per verificare che tutte le issue associate siano state completate e che il milestone corrente venga ufficialmente chiuso.`
+
+
