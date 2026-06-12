@@ -2,11 +2,15 @@
 
 ## Indice
 
-- [Accettazione assignment del primo componente e creazione repository su GitHub](#Accettazione-assignment-del-primo-componente-e.creazione-repository-su-GitHub)
-- [Accettazione assignment degli altri componenti e accesso al repository su GitHub](#Accettazione-assignment-degli-altri-componenti-e-accesso-al-repository-su-GitHub)s
-- [Configurazione del repository su GitHub](#Configurazione-del-repository-su-GitHub)
-- [Abilitazione package/immagini Docker](#Abilitazione-package/immagini-Docker)
-- [Aggiunta del badge di GitHub Actions nel README](#Aggiunta-del-badge-di-GitHub-Actions-nel-README)
+- [Introduzione](#Introduzione)
+- [Modello di dominio](#Modello-di-dominio)
+- [Requisiti specifici](#Requisiti-specifici)
+- [System design](#System-design)
+- [OO design](#OO-design)
+- [Riepilogo dei test](#Riepilogo-dei-test)
+- [Modalità di collaborazione del team](#Modalità-di-collaborazione-del-team)
+- [Analisi retrospettiva](#Analisi-retrospettiva)
+
 
 ## 1. Introduzione
 Questo documento descrive le scelte progettuali, l'architettura e i requisiti del progetto Quoridor. Il software è un'implementazione in Python del celebre gioco da tavolo, che permette a due giocatori di sfidarsi su una scacchiera 9x9. L'obiettivo è raggiungere il lato opposto della plancia prima dell'avversario, gestendo strategicamente il movimento del proprio pedone e il posizionamento di muri per ostacolare l'altro giocatore.
