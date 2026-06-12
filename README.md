@@ -6,7 +6,7 @@
 - [Modello di dominio](#2-modello-di-dominio)
 - [Requisiti specifici](#3-requisiti-specifici)
 - [System design](#4-system-design)
-- [OO design (objected-oriented design)](#5-OO-design- (objected-oriented design))
+- [OO design](#5-OO-design)
 - [Riepilogo dei test](#6-riepilogo-dei-test)
 - [Modalità di collaborazione del team](#7-modalità-di-collaborazione-del-team)
 - [Analisi retrospettiva](#8-analisi-retrospettiva)
@@ -358,7 +358,7 @@ Il team ha preso le seguenti decisioni di progetto:
 * **Containerizzazione:** Per soddisfare il requisito di portabilità (RNF2), abbiamo optato per la containerizzazione tramite **Docker**, creando un ambiente di esecuzione isolato e identico su qualsiasi macchina.
 * **Qualità del Codice:** Per assicurare la manutenibilità (RNF3), abbiamo integrato nel nostro flusso di lavoro il linter **Ruff**, che ha imposto e verificato automaticamente il rispetto delle convenzioni architetturali PEP 8.
 
-## 5. OO design (objected-oriented design)
+## 5. OO design
 
 **5.1 Diagramma delle Classi (Prospettiva Software)**
 
