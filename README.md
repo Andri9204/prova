@@ -6,7 +6,7 @@
 - [Modello di dominio](#2-modello-di-dominio)
 - [Requisiti specifici](#3-requisiti-specifici)
 - [System design](#4-system-design)
-- [00 design](#5-00-design)
+- [OO design](#5-OO-design)
 - [Riepilogo dei test](#6-riepilogo-dei-test)
 - [Modalità di collaborazione del team](#7-modalità-di-collaborazione-del-team)
 - [Analisi retrospettiva](#8-analisi-retrospettiva)
